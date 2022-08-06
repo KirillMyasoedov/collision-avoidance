@@ -1,0 +1,65 @@
+@startuml
+
+InputDataAdapter : -grid_map_subscriber
+InputDataAdapter : -labeled_grid_map_subscriber
+InputDataAdapter : -velocity_subscriber
+InputDataAdapter : -odometry_subscriber
+InputDataAdapter : -grid_map_callback(grid_map_data)
+InputDataAdapter : -velocity_callback(velocity_data)
+InputDataAdapter : -odometry_callback(odometry_data)
+InputDataAdapter : +get_occupancy_grid() -> occupancy_array
+InputDataAdapter : +get_velocity_vector() -> velocity
+InputDataAdapter : +get_position_orientation() -> position, orientation
+
+RobotVisualizationNodeFactory .. RobotVisualizationNode
+RobotVisualizationNodeFactory : +make_robot_visualization_node()
+
+InnerCollisionZone : +r_inner
+InnerCollisionZone : +get_contour(position) -> contour
+
+OuterCollisionZone : +r_inner
+OuterCollisionZone : + b
+OuterCollisionZone : + k
+OuterCollisionZone : + is_obstacle
+OuterCollisionZone : +get_contour(position) -> contour
+OuterCollisionZone : -calculate_distance(point_cloud, position, alpha) -> distance
+OuterCollisionZone : +get_velocity(distance, velocity) -> velocity
+
+CollisionZonesManager : +inner_collision_zone_first_type
+CollisionZonesManager : +outer_collision_zone_first_type
+CollisionZonesManager : +inner_collision_zone_second_type
+CollisionZonesManager : +outer_collision_zone_second_type
+CollisionZonesManager : +get_contours_and_velocity(occupancy_grid, position, orientation, velocity)
+CollisionZonesManager : +save_velocity_in_plot()
+
+CollisionZonesManager o-- InnerCollisionZone
+CollisionZonesManager o-- OuterCollisionZone
+
+RobotVisualizationNode : -input_data_adapter
+RobotVisualizationNode : -collision_zones_manager
+RobotVisualizationNode : -simulator
+RobotVisualizationNode : -output_data_adapter
+RobotVisualizationNode : -timer_callback()
+
+RobotVisualizationNode *-- InputDataAdapter
+RobotVisualizationNode *-- CollisionZonesManager
+RobotVisualizationNode *-- Simulator
+RobotVisualizationNode *-- OutputDataAdapter
+
+Simulator : -period
+Simulator : -orientation
+Simulator : -get_position(position, updated_velocity)
+Simulator : -get_orientation(orientation, updated_velocity)
+
+OutputDataAdapter : -contours_publisher
+OutputDataAdapter : -velocity_publisher
+OutputDataAdapter : -create_contours_message()
+OutputDataAdapter : -create_velocity_message()
+OutputDataAdapter : +publish_messages()
+
+CollisionZone -|> InnerCollisionZone
+CollisionZone -|> OuterCollisionZone
+
+CollisionZone : +r_inner
+
+@enduml

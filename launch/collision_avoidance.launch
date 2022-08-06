@@ -1,0 +1,26 @@
+<launch>
+    <arg name="simulation" default="true"/>
+    <arg name="output_plot" default="false"/>
+    
+    <node pkg="teleop_twist_keyboard"
+          type="teleop_twist_keyboard.py"
+          name="teleop_twist_keyboard" output="screen"
+          if="$(arg simulation)"/>
+
+    <node pkg="rosbag"
+          type="play"
+          name="player"
+          args="-l /home/kirill/catkin_ws/src/collision-avoidance/bags/maps.bag"
+          if="$(arg simulation)"/>
+
+    <node pkg="rviz"
+          type="rviz"
+          name="rviz"
+          args="-d /home/kirill/catkin_ws/src/collision-avoidance/configs.rviz"
+          if="$(arg simulation)"/>
+
+    <node pkg="collision-avoidance" type="collision_avoidance_node_main.py" name="collision_avoidance_node" output="screen">
+        <param name="simulation" type="bool" value="$(arg simulation)"/>
+        <param name="output_plot" type="bool" value="$(arg output_plot)"/>
+    </node>
+</launch>

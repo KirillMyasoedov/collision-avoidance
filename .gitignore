@@ -1,0 +1,7 @@
+venv/
+bags/
+.idea/
+build/
+install/
+src/__pycache__/
+tests/
